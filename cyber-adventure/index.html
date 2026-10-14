@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER::ADVENTURES — Der Streamer-Hack</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="../fonts/fonts.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== TITLE SCREEN ===== -->
+  <div id="title-screen">
+    <div id="title-content">
+      <div class="title-logo">CYBER<span class="pink">::</span>ADVENTURES</div>
+      <div class="title-sub">— DER STREAMER-HACK —</div>
+      <div class="title-tagline">
+        Ein Point-and-Click-Abenteuer über Bits, Bytes und total dramatische Hacker.
+      </div>
+      <div class="title-chars">
+        <div class="title-char kim">
+          <div class="tc-head kim"></div>
+          <div class="tc-body kim"></div>
+          <div class="tc-legs">
+            <div class="tc-leg kim"></div>
+            <div class="tc-leg kim"></div>
+          </div>
+        </div>
+        <div class="char-preview-label">KIM</div>
+        <div class="title-char byte">
+          <div class="tc-head byte"></div>
+          <div class="tc-body byte"></div>
+          <div class="tc-legs">
+            <div class="tc-leg byte"></div>
+            <div class="tc-leg byte"></div>
+          </div>
+        </div>
+        <div class="char-preview-label pink">BYTE</div>
+      </div>
+      <button id="btn-start" class="big-btn">[ SPIEL STARTEN ]</button>
+      <button id="btn-continue" class="big-btn dim hidden">[ WEITERSPIELEN ]</button>
+      <div class="title-credits">Informatik Kl. 8 · 9 Kapitel · ~45 Min</div>
+    </div>
+  </div>
+
+  <!-- ===== GAME WRAPPER (hidden until game starts) ===== -->
+  <div id="game" class="hidden">
+
+    <!-- Scene area -->
+    <div id="scene-container">
+      <!-- Scene content injected here by engine.js -->
+    </div>
+
+    <!-- Chapter label -->
+    <div id="chapter-label"></div>
+
+    <!-- Hotspot tooltip (hidden — labels are always shown on hotspots) -->
+    <div id="hotspot-tooltip" style="display:none"></div>
+
+    <!-- ===== DIALOG PANEL ===== -->
+    <div id="dialog-panel" class="hidden">
+      <div id="dialog-portrait">
+        <div id="portrait-char"></div>
+        <div id="portrait-name"></div>
+      </div>
+      <div id="dialog-body">
+        <div id="dialog-text"></div>
+        <div id="dialog-choices"></div>
+        <div id="dialog-continue" class="hidden">&#9654; WEITER</div>
+      </div>
+    </div>
+
+    <!-- ===== BADGE BAR (Abschluss-Abzeichen) ===== -->
+    <div id="inventory-bar">
+      <div id="inventory-label">ABZEICHEN</div>
+      <div id="inventory-slots"></div>
+      <div id="inventory-tooltip"></div>
+    </div>
+
+    <!-- ===== PUZZLE OVERLAY ===== -->
+    <div id="puzzle-overlay" class="hidden">
+      <div id="puzzle-box">
+        <button id="puzzle-close">✕ ABBRECHen</button>
+        <div id="puzzle-content"></div>
+      </div>
+    </div>
+
+    <!-- ===== NOTIFICATION ===== -->
+    <div id="notification" class="hidden"></div>
+
+  </div>
+
+  <!-- ===== TRANSITION OVERLAY ===== -->
+  <div id="transition-overlay"></div>
+
+  <script type="module">
+    import { engine }   from './js/engine.js';
+    import { state }    from './js/state.js';
+    import { inventory } from './js/inventory.js';
+
+    const btnStart    = document.getElementById('btn-start');
+    const btnContinue = document.getElementById('btn-continue');
+    const titleScreen = document.getElementById('title-screen');
+    const game        = document.getElementById('game');
+
+    // Check for saved game
+    if (state.hasSave()) {
+      btnContinue.classList.remove('hidden');
+    }
+
+    btnStart.addEventListener('click', () => {
+      state.reset();
+      inventory.init();
+      titleScreen.classList.add('hidden');
+      game.classList.remove('hidden');
+      engine.init();
+      engine.loadScene('s00_intro');
+    });
+
+    btnContinue.addEventListener('click', () => {
+      state.load();
+      inventory.init();
+      inventory.restoreFromState();
+      titleScreen.classList.add('hidden');
+      game.classList.remove('hidden');
+      engine.init();
+      engine.loadScene(state.currentScene || 's00_intro');
+    });
+  </script>
+</body>
+</html>

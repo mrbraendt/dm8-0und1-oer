@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CYBER::TOWER</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="../fonts/fonts.css" rel="stylesheet">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Start / Pause Screen -->
+    <div id="blocker">
+        <div id="blocker-content">
+            <h1>CYBER<span class="pink">::</span>TOWER</h1>
+            <p class="subtitle">Infiltriere den Turm. Löse die Rätsel. Finde die Fragmente.</p>
+            <div id="controls-info" class="controls-info">
+                <div class="control-row"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Bewegen</div>
+                <div class="control-row"><kbd>MAUS</kbd> Umsehen</div>
+                <div class="control-row"><kbd>LEERTASTE</kbd> Springen</div>
+                <div class="control-row"><kbd>F</kbd> Ball werfen / fangen</div>
+                <div class="control-row"><kbd>E</kbd> Interagieren</div>
+                <div class="control-row"><kbd>ESC</kbd> Pause</div>
+            </div>
+            <p class="click-hint">[ KLICK ZUM STARTEN ]</p>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div id="hud-left">
+            <div id="hud-floor">LOBBY</div>
+        </div>
+        <div id="hud-right">
+            <div id="hud-fragments">FRAGMENTE: 0 / 15</div>
+        </div>
+    </div>
+
+    <!-- Interaction prompt -->
+    <div id="hud-interact" class="hidden">[E] Interagieren</div>
+
+    <!-- Crosshair -->
+    <div id="crosshair" class="hidden">+</div>
+
+    <!-- Notification -->
+    <div id="notification" class="hidden"></div>
+
+    <!-- Touch Controls -->
+    <div id="touch-controls" class="hidden">
+        <div id="joystick-left" class="joystick-zone"></div>
+        <div id="joystick-right" class="joystick-zone"></div>
+        <button id="touch-interact">E</button>
+        <button id="touch-jump">⇧</button>
+        <button id="touch-throw">●</button>
+    </div>
+
+    <!-- Terminal Overlay (puzzle UI) -->
+    <div id="terminal-overlay" class="hidden">
+        <div id="terminal-content"></div>
+        <button id="terminal-close">✕ SCHLIEẞEN</button>
+    </div>
+
+    <!-- Transition overlay (elevator) -->
+    <div id="transition-overlay" class="hidden"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
