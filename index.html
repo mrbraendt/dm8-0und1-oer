@@ -342,9 +342,10 @@ nav a:not(.nav-locked):not(.active):hover {
    SECTION 1 — BIT-TAPE & ASCII
    ═══════════════════════════════════════════ */
 .bit-tape-wrap { margin: 1rem 0; overflow-x: auto; }
-.bit-tape { display: flex; gap: 6px; padding: 0.5rem 0; }
+.bit-tape { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 0.5rem 0; }
+.bit-byte { display: flex; gap: 6px; }
 .bit-cell {
-  width: 44px; height: 64px;
+  width: 44px; height: 76px;
   border: 1px solid var(--border-dim);
   border-radius: 6px;
   background: var(--bg);
@@ -355,7 +356,19 @@ nav a:not(.nav-locked):not(.active):hover {
   font-family: var(--font-mono);
 }
 .bit-cell:hover { border-color: var(--neon-blue); transform: translateY(-2px); }
-.bit-cell .bit-val { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; }
+.bit-cell .bit-val { font-size: 1.1rem; color: var(--text-dim); font-weight: bold; }
+.bit-cell.active .bit-val { color: var(--neon-blue); }
+.bit-cell.active { background: rgba(0,136,170,0.16); border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,136,170,0.3); }
+.bit-cell .bit-w { font-size: 0.62rem; color: var(--text-dim); border-top: 1px solid var(--border-dim); padding-top: 3px; width: 80%; text-align: center; }
+.bit-cell.static { cursor: default; }
+.bit-cell.static:hover { border-color: var(--border-dim); transform: none; }
+.bit-cell.static.active:hover { border-color: var(--neon-blue); }
+.tape-info .calc { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); margin-left: 0.4rem; }
+.tape-info .decimal-value { font-size: 1.5rem; }
+.target-chip {
+  font-family: var(--font-mono); font-size: 1rem; padding: 0.4rem 0.9rem; border-radius: 4px;
+  border: 1px solid rgba(196,24,88,0.3); color: var(--neon-pink); background: rgba(196,24,88,0.06);
+}
 .bit-cell .bit-pos { font-size: 0.6rem; color: var(--text-dim); }
 .bit-cell.active-bit { background: rgba(0,136,170,0.1); border-color: var(--neon-blue); }
 
@@ -819,13 +832,15 @@ body.dark-mode .error-box .error-text { color: #ffaaaa; }
   .section-text { padding: 1.2rem; }
   .interactive-area { padding: 1rem; }
   .gate-area { padding: 1.2rem; }
-  .bit-cell { width: 36px; height: 54px; }
+  .bit-cell { width: 36px; height: 68px; }
   .turing-tape-cell { width: 40px; height: 40px; font-size: 1rem; }
   .ki-data-card { flex-direction: column; min-width: auto; width: 100%; }
   .ki-data-card .ki-number { font-size: 2.5rem; }
   .ki-data-card .ki-buttons { flex-direction: row; }
 }
 @media (max-width: 480px) {
+  .bit-byte { gap: 3px; }
+  .bit-cell { width: 30px; height: 64px; }
   .ki-data-card { flex-direction: column; min-width: auto; width: 100%; }
   .ki-data-card .ki-number { font-size: 2.5rem; }
   .ki-data-card .ki-buttons { flex-direction: row; }
@@ -1468,8 +1483,8 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       </p>
       <p>
         <em>Alles</em>, was dein Gerät tut — jedes Foto, jede Nachricht, jedes Video — ist am Ende
-        eine riesige Reihe aus Nullen und Einsen. 1936 bewies der Mathematiker
-        <span class="highlight">Alan Turing</span>, dass eine absurd einfache Maschine (ein Band, ein Lesekopf, ein paar Regeln) alles berechnen kann, was überhaupt berechenbar ist.
+        eine riesige Reihe aus Nullen und Einsen. 1936 dachte sich der Mathematiker
+        <span class="highlight">Alan Turing</span> eine absurd einfache Gedankenmaschine aus (ein Band, ein Lesekopf, ein paar Regeln). Seine Vermutung, heute „Church-Turing-These“ genannt: Alles, was sich überhaupt berechnen lässt, schafft auch diese einfache Maschine. Bis heute hat niemand ein Gegenbeispiel gefunden.
       </p>
       <p>
         Warum ist das wichtig für dich? Die App, mit der du Musik hörst, das Spiel, das du abends zockst, und die KI, die deine Fragen beantwortet — all das läuft auf exakt demselben Grundprinzip. Nicht drei verschiedene Maschinen für drei Aufgaben, sondern ein einziger Typ: der universelle Schalter-Umdreh-Automat. Dein Gerät ist im Kern genau das — nur mit Milliarden Schaltern statt Papierband.
@@ -1491,80 +1506,105 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
         </div>
         <div class="step-callout">
           <span class="sc-num">SCHRITT 2</span>
-          <span class="sc-text">Immer <strong>8 Bits</strong> hintereinander ergeben <strong>1 Byte</strong>. Mit 8 Bits kann man 256 verschiedene Muster darstellen — zum Beispiel genau einen Buchstaben des Alphabets.</span>
+          <span class="sc-text">Immer <strong>8 Bits</strong> hintereinander ergeben <strong>1 Byte</strong>. Mit 8 Bits kann man 256 verschiedene Muster darstellen (die Zahlen 0 bis 255) — zum Beispiel genau einen Buchstaben des Alphabets.</span>
         </div>
         <div class="step-callout">
           <span class="sc-num">SCHRITT 3</span>
-          <span class="sc-text">Unten siehst du den <strong>Dezimalwert</strong> — das ist die normale Alltagszahl, die dein Bitmuster bedeutet. Klick das <strong>?</strong> für eine genaue Erklärung.</span>
+          <span class="sc-text">Unter jedem Schalter steht sein <strong>Wert</strong> (128, 64, 32 … 2, 1). Stell dir eine Waage mit Gewichten vor: Jeder Schalter, der <em>an</em> ist, legt sein Gewicht auf die Waage. <strong>Addiere die Werte aller eingeschalteten Schalter</strong> — das ist die Zahl, die dein Muster bedeutet. Es ist wie bei 347 = 3·100 + 4·10 + 7·1, nur dass jede Stelle hier <em>doppelt</em> so viel wert ist wie die rechts daneben (statt zehnmal so viel).</span>
         </div>
       </div>
       <div class="bit-tape" id="free-tape"></div>
       <div class="tape-info">
-        Dezimalwert: <span class="decimal-value" id="free-tape-decimal">0</span>
-        <details class="info-detail">
-          <summary>?</summary>
-          <div class="info-panel">
-            <strong>Dezimal = normale Alltagszahl.</strong><br>
-            Du kennst Dezimalzahlen: 0, 1, 2, 3 … 42, 100, 255. Das sind einfach die Zahlen, mit denen wir täglich rechnen.<br><br>
-            <strong>Wie rechnet man um?</strong><br>
-            Jede Bit-Position hat einen festen Wert — von rechts nach links verdoppelt er sich:<br>
-            <code>128 · 64 · 32 · 16 · 8 · 4 · 2 · 1</code><br><br>
-            Steht an einer Position eine <strong>1</strong>, addierst du deren Wert dazu.<br>
-            Beispiel: <code>0 0 0 0 1 1 0 1</code><br>
-            = 8 + 4 + 1 = <strong>13</strong><br><br>
-            Das ? verschwindet nur dann nicht — du brauchst Dezimalzahlen nicht auswendig können. Wichtig ist: Computer übersetzen alles in Zahlen.
-          </div>
-        </details>
+        Linkes Byte: <span class="decimal-value" id="free-tape-decimal">0</span> <span class="calc" id="free-tape-calc"></span><br>
+        Rechtes Byte: <span class="decimal-value" id="free-tape-decimal2">0</span> <span class="calc" id="free-tape-calc2"></span>
       </div>
+
+      <div class="step-callout" style="margin-top:1rem;">
+        <span class="sc-num">INFO</span>
+        <span class="sc-text"><strong>1 Byte = 8 Bit.</strong> Für einen Buchstaben reicht ein Byte. <strong>1 Kilobyte (KB) = 1000 Byte</strong> — das sind etwa 1000 Zeichen Text. Manche Programme rechnen mit 1024 Byte (= 2<sup>10</sup>); dafür gibt es den genauen Namen <em>Kibibyte (KiB)</em>.
+        <span class="aside" style="display:block; margin-top:0.5rem;">Mini-Aufgabe: Ein Wort hat <strong id="bq-n">5</strong> Buchstaben (je 1 Byte). Wie viele <em>Bits</em> sind das?
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="bq-input" autocomplete="off" aria-label="Anzahl Bits" style="width:5.5rem; margin:0 0.4rem; padding:0.3rem 0.5rem; font-family:var(--font-mono); background:var(--bg); color:var(--text-bright); border:1px solid var(--border-dim); border-radius:6px;">
+          <button class="btn btn-secondary" id="bq-check" style="margin-top:0; padding:0.4rem 0.9rem;">PRÜFEN</button>
+          <span id="bq-status" style="margin-left:0.5rem;"></span></span></span>
+      </div>
+    </div>
+
+    <!-- ÜBUNGEN -->
+    <div class="interactive-area" id="werkstatt-uebungen">
+      <h3>🧮 Übung 1 — Zahl in Bits umwandeln</h3>
+      <p style="font-size:0.88rem; color:var(--text); margin-bottom:0.8rem;">
+        Schalte die Bits so, dass die Zahl <strong class="highlight" id="ex1-target" style="font-size:1.2rem;">13</strong> entsteht.
+        Starte links beim größten Wert: Passt er noch in die Zahl hinein? Dann schalte ihn an und zieh ihn ab.
+      </p>
+      <div class="bit-tape" id="ex1-tape"></div>
+      <div class="tape-info">Dein Muster ergibt: <span class="decimal-value" id="ex1-sum">0</span> <span class="calc" id="ex1-calc"></span></div>
+      <button class="btn btn-primary" id="ex1-check">PRÜFEN</button>
+      <button class="btn btn-secondary" id="ex1-next" style="display:none;">NOCH EINE ZAHL (BONUS)</button>
+      <div class="gate-status checking" id="ex1-status" aria-live="polite"></div>
+
+      <h3 style="margin-top:2rem;">🔍 Übung 2 — Bits lesen</h3>
+      <p style="font-size:0.88rem; color:var(--text); margin-bottom:0.8rem;">
+        Welche Zahl zeigt dieses Muster? Addiere die Werte der eingeschalteten Schalter.
+        <span class="aside" id="ex2-count">(Aufgabe 1 von 2)</span>
+      </p>
+      <div class="bit-tape" id="ex2-tape"></div>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" id="ex2-input" autocomplete="off" aria-label="Deine Zahl" placeholder="Zahl" style="width:7rem; padding:0.5rem 0.8rem; font-family:var(--font-mono); font-size:1rem; background:var(--bg); color:var(--text-bright); border:1px solid var(--border-dim); border-radius:6px; margin-right:0.5rem;">
+      <button class="btn btn-primary" id="ex2-check" style="margin-top:0;">PRÜFEN</button>
+      <div class="gate-status checking" id="ex2-status" aria-live="polite"></div>
     </div>
 
     <!-- ASCII REFERENZTABELLE -->
     <details class="gate-hint" style="margin-top:1.2rem;">
       <summary style="font-family:var(--font-head); font-size:0.65rem; letter-spacing:0.1em; color:var(--neon-blue); cursor:pointer; list-style:none; padding:0.4rem 0;">
-        📋 ASCII-TABELLE ANZEIGEN (Nr. 1–255)
+        📋 ASCII-TABELLE ANZEIGEN (Nr. 32–126, mit Binärcode)
       </summary>
       <div class="hint-body" style="padding:1rem 0 0.5rem;">
         <p style="font-size:0.82rem; color:var(--text); line-height:1.7; margin-bottom:0.8rem;">
-          <strong>Woher kommt ASCII?</strong> 1963 legte das <em>American Standards Institute</em> (ASA, heute ANSI) fest, welche Zahl für welches Zeichen stehen soll — ursprünglich für Telegrafie und Fernschreiber. Ziel: Verschiedene Hersteller, gleiche Bedeutung. Das System heißt <strong>ASCII</strong> (American Standard Code for Information Interchange). Bis heute bildet es die Grundlage für alle gängigen Textformate — auch Unicode baut auf ASCII auf und ist zu ihm abwärtskompatibel.
+          <strong>Woher kommt ASCII?</strong> 1963 legte die <em>American Standards Association</em> (ASA, später ANSI) fest, welche Zahl für welches Zeichen stehen soll — ursprünglich für Telegrafie und Fernschreiber. Ziel: Verschiedene Hersteller, gleiche Bedeutung. Das System heißt <strong>ASCII</strong> (American Standard Code for Information Interchange). Bis heute bildet es die Grundlage für alle gängigen Textformate — auch Unicode baut auf ASCII auf und ist zu ihm abwärtskompatibel.
         </p>
         <p style="font-size:0.78rem; color:var(--text-dim); margin-bottom:1rem;">
-          Nr. 1–31: Steuerzeichen (unsichtbar, z.&nbsp;B. Zeilenumbruch, Tabulatur) &nbsp;|&nbsp; Nr. 32: Leerzeichen &nbsp;|&nbsp; Nr. 33–126: druckbare Zeichen &nbsp;|&nbsp; Nr. 128–255: Erweiterungen (je nach Kodierung unterschiedlich)
+          Die Spalte „Binär“ zeigt die Zahl als 8 Bit — genau so, wie du sie oben mit den Schaltern einstellst. Eigentlich braucht ASCII nur 7 Bit (Nr. 0–127), deshalb beginnt jedes Muster mit einer 0.
+          Nr. 0–31 und 127 sind unsichtbare Steuerzeichen (z.&nbsp;B. 10 = Zeilenumbruch, 0 = „nichts“) und stehen hier nicht. Nr. 32 ist das Leerzeichen. Ab 128 (z.&nbsp;B. Umlaute) gibt es je nach Kodierung unterschiedliche Erweiterungen, die nicht zu ASCII gehören.
         </p>
         <div style="overflow-x:auto;">
           <table class="ascii-table-mini" id="ascii-full-table" style="width:100%; font-size:0.78rem;">
             <thead>
               <tr>
-                <th>Nr.</th><th>Zeichen</th><th>Nr.</th><th>Zeichen</th><th>Nr.</th><th>Zeichen</th><th>Nr.</th><th>Zeichen</th>
+                <th>Nr.</th><th>Zeichen</th><th>Binär</th><th>Nr.</th><th>Zeichen</th><th>Binär</th><th>Nr.</th><th>Zeichen</th><th>Binär</th>
               </tr>
             </thead>
             <tbody id="ascii-tbody"></tbody>
           </table>
         </div>
-        <p style="font-size:0.72rem; color:var(--text-dim); margin-top:0.6rem;">* Steuerzeichen (1–31) werden mit ihrer Bezeichnung angezeigt, z.&nbsp;B. [LF] für Zeilenumbruch.</p>
+        <p style="font-size:0.72rem; color:var(--text-dim); margin-top:0.6rem;">[SP] = Leerzeichen. Mit dieser Tabelle kannst du Texte als Bits lesen und schreiben — in Einheit 2 steuerst du dann mit Regeln, wie eine Maschine solche Bits verändert.</p>
       </div>
     </details>
 
-    <!-- GATE: Pattern Match -->
+    <!-- GATE: Hi in ASCII schreiben -->
     <div class="gate-area" id="werkstatt-gate">
       <h3>🔓 DEINE MISSION</h3>
       <p class="gate-description">
-       Unten siehst du ein <strong>Zielmuster</strong> — eine bestimmte Folge aus Nullen und Einsen.
-        Stelle dein Band oben <em>exakt</em> so ein, dass es dem Zielmuster entspricht.
-        Erst wenn jedes Bit stimmt, öffnet sich die nächste Einheit.
-        <br><span class="aside">(Tipp: Das Muster ist kein Zufall — du wirst am Ende sehen, was es bedeutet.)</span>
+        Schreibe ein Wort in Bits! Im ASCII-Code ist jeder Buchstabe eine Zahl: <strong>H = 72</strong> und <strong>i = 105</strong>.
+        Stelle die beiden Bytes unten so ein, dass sie diese Zahlen zeigen.
+        Öffne die nächste Einheit, indem du <strong>Übung 1, Übung 2 und diese Mission</strong> schaffst.
       </p>
-      <div class="gate-target-label">▸ ZIELMUSTER</div>
-      <div class="gate-target-tape" id="target-tape-display"></div>
+      <div class="gate-target-label">▸ ZIEL (linkes Byte, rechtes Byte)</div>
+      <div class="gate-target-tape" id="target-tape-display">
+        <span class="target-chip">H = 72</span><span class="target-chip">i = 105</span>
+      </div>
+      <div class="bit-tape" id="gate-tape"></div>
+      <div class="tape-info">
+        <span class="calc" id="gate-calc"></span>
+      </div>
       <details class="gate-hint">
         <summary>HINWEIS ANZEIGEN</summary>
         <div class="hint-body">
-          Vergleiche dein Band <strong>Bit für Bit</strong> mit dem Zielmuster — von links nach rechts.<br>
-          Ist das erste Bit oben eine 0, aber im Zielmuster eine 1? Klick drauf, um es zu wechseln.<br><br>
-          <strong>Tipp:</strong> Das Zielmuster besteht aus zwei 8-Bit-Gruppen. Jede Gruppe steht für einen Buchstaben. Du erfährst in Einheit 2, was sie bedeuten.
+          Gehe Byte für Byte vor. Beginne links beim größten Wert: Passt 128 in die Zahl? Wenn nicht, bleibt der Schalter aus. Passt 64? Dann an — und zieh 64 ab. Mit dem Rest machst du beim nächsten Wert weiter.<br><br>
+          <strong>Kontrolle:</strong> In der ASCII-Tabelle oben steht die Binärzahl zu jedem Zeichen. Rechne erst selbst — und schau dann nach, ob es stimmt.
         </div>
       </details>
-      <div class="gate-status checking" id="werkstatt-gate-status">
-        ⏳ Dein Band stimmt noch nicht mit dem Zielmuster überein.
+      <div class="gate-status checking" id="werkstatt-gate-status" aria-live="polite">
+        ⏳ Noch offen: Übung 1, Übung 2, Mission.
       </div>
     </div>
 
@@ -1572,7 +1612,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       <summary>⚡ HERAUSFORDERUNG — Für Schnelle</summary>
       <div class="challenge-body">
         <span class="challenge-tag">OPTIONAL</span>
-        <p>Das Tape zeigt gerade „Hi". Klick die Bits für den Buchstaben <strong>„A"</strong> (ASCII 65) und dann für <strong>„a"</strong> (ASCII 97). Was ist der Unterschied in Binär — welches einzige Bit ändert sich? Das gilt für <em>alle</em> Buchstaben.</p>
+        <p>Stell im rechten Byte des Bit-Tapes oben die Zahl für den Buchstaben <strong>„A"</strong> (ASCII 65) ein und dann die für <strong>„a"</strong> (ASCII 97). Was ist der Unterschied in Binär — welches einzige Bit ändert sich? Das gilt für <em>alle</em> Buchstaben.</p>
         <p style="margin-top:0.6rem; color:var(--text-dim); font-size:0.84rem;">→ <em>97 − 65 = 32 = 2<sup>5</sup>. Bit Nummer 6 von rechts (das 32er-Bit) ist bei Kleinbuchstaben immer 1, bei Großbuchstaben 0. Schau nach: stimmt das für B/b, C/c?</em></p>
       </div>
     </details>
@@ -1612,10 +1652,10 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
         <em>unglaublich viel</em> erreichen.
       </p>
       <p>
-        Die Turing-Maschine, die du in Einheit 1 kennengelernt hast, ist das einfachste
-        Modell dafür. Sie liest ein Feld, entscheidet nach einer Regel was sie schreibt,
+        Die Turing-Maschine, von der du in Einheit 1 schon gelesen hast, ist das einfachste
+        Modell dafür. Hier steuerst du sie selbst. Sie liest ein Feld, entscheidet nach einer Regel was sie schreibt,
         und geht dann einen Schritt nach links oder rechts. Das wars. Kein weiterer Trick.
-        Und trotzdem kann man damit alles berechnen, was berechenbar ist.
+        Und trotzdem schafft sie nach allem, was wir wissen, alles, was sich überhaupt berechnen lässt.
       </p>
       <p>
         Jetzt bist du dran: Du schreibst die Regeln. Du wirst zum Programmierer.
@@ -1936,9 +1976,8 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       <p>
         Auf einem Schwarz-Weiß-Bildschirm ist es besonders einfach: Ein Pixel braucht
         genau <span class="highlight">1 Bit</span>. Eine 1 heißt „an" (leuchten), eine 0
-        heißt „aus" (dunkel). Ein 8×8-Raster hat also 64 Pixel, und die brauchst du genau
-        64 Bits, um das komplette Bild zu speichern. So hat Nintendo das 1985 beim
-        Game Boy gemacht — nur statt 64 waren es knapp 24.000 Pixel. Und im Prinzip
+        heißt „aus" (dunkel). Ein 8×8-Raster hat also 64 Pixel, und du brauchst genau
+        64 Bits, um das komplette Bild zu speichern. Ganz ähnlich arbeitete der Game Boy (1989) von Nintendo — nur statt 64 waren es gut 23.000 Pixel (und vier Grautöne statt nur zwei). Und im Prinzip
         funktioniert es heute genauso, nur mit viel mehr Pixeln und drei Farbkanälen pro
         Punkt statt einem <span class="aside">(Rot, Grün, Blau — zusammen ergeben sie jede
         Farbe der Welt.)</span>
@@ -2644,15 +2683,14 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       if (controlNames[n]) return controlNames[n];
       try { return String.fromCharCode(n); } catch(e) { return '?'; }
     }
-    // Build rows of 4 entries each
+    // Druckbare ASCII-Zeichen 32-126, je 3 Eintraege pro Zeile (Nr., Zeichen, Binaer)
     const rows = [];
-    for (let i = 1; i <= 255; i += 4) {
+    for (let i = 32; i <= 126; i += 3) {
       const cols = [];
-      for (let j = i; j < i + 4 && j <= 255; j++) {
-        cols.push(`<td style="color:var(--text-dim); font-size:0.75rem;">${j}</td><td class="mono">${charLabel(j)}</td>`);
+      for (let j = i; j < i + 3 && j <= 126; j++) {
+        cols.push(`<td style="color:var(--text-dim); font-size:0.75rem;">${j}</td><td class="mono">${charLabel(j)}</td><td class="mono" style="font-size:0.72rem; color:var(--text-dim);">${j.toString(2).padStart(8, '0')}</td>`);
       }
-      // Pad if last row is short
-      while (cols.length < 4) cols.push('<td></td><td></td>');
+      while (cols.length < 3) cols.push('<td></td><td></td><td></td>');
       rows.push(`<tr>${cols.join('')}</tr>`);
     }
     tbody.innerHTML = rows.join('');
@@ -2826,60 +2864,275 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
 
   // ─── SEKTION 1: WERKSTATT ──────────────
 
-  // Build free tape
+  const WEIGHTS = [128, 64, 32, 16, 8, 4, 2, 1];
+
+  // Baut ein Bit-Band (Gruppen zu 8 Bits) mit Stellenwerten unter den Zellen.
+  // bits: Array mit 0/1 (wird direkt veraendert), onChange: Callback nach Klick.
+  function buildTape(container, bits, onChange, interactive) {
+    const cells = [];
+    for (let g = 0; g < bits.length / 8; g++) {
+      const group = document.createElement('div');
+      group.className = 'bit-byte';
+      for (let k = 0; k < 8; k++) {
+        const i = g * 8 + k;
+        const cell = document.createElement('div');
+        cell.className = 'bit-cell' + (interactive ? '' : ' static');
+        cell.dataset.index = i;
+        cell.innerHTML = '<span class="bit-val"></span><span class="bit-w">' + WEIGHTS[k] + '</span>';
+        group.appendChild(cell);
+        cells.push(cell);
+      }
+      container.appendChild(group);
+    }
+    function render() {
+      cells.forEach((cell, i) => {
+        cell.querySelector('.bit-val').textContent = bits[i];
+        cell.classList.toggle('active', bits[i] === 1);
+      });
+    }
+    if (interactive) {
+      container.addEventListener('click', (e) => {
+        const cell = e.target.closest('.bit-cell');
+        if (!cell) return;
+        const idx = parseInt(cell.dataset.index);
+        bits[idx] ^= 1;
+        render();
+        if (onChange) onChange();
+      });
+    }
+    render();
+    return { render };
+  }
+
+  // Wert eines Bytes (Bits ab Position start) und Rechenweg als Text
+  function byteValue(bits, start) {
+    let v = 0;
+    for (let k = 0; k < 8; k++) if (bits[start + k]) v += WEIGHTS[k];
+    return v;
+  }
+  function byteCalc(bits, start) {
+    const parts = [];
+    for (let k = 0; k < 8; k++) if (bits[start + k]) parts.push(WEIGHTS[k]);
+    if (parts.length === 0) return '(nichts an)';
+    return parts.length === 1 ? '' : parts.join(' + ') + ' = ' + byteValue(bits, start);
+  }
+  // Zerlegung einer Zahl in Stellenwerte, z. B. "13 = 8 + 4 + 1"
+  function decompose(n) {
+    const parts = [];
+    let rest = n;
+    WEIGHTS.forEach(w => { if (rest >= w) { parts.push(w); rest -= w; } });
+    return n + ' = ' + parts.join(' + ');
+  }
+  function arraysEqual(a, b) { return a.length === b.length && a.every((v, i) => v === b[i]); }
+  function numToBits(n) { return n.toString(2).padStart(8, '0').split('').map(Number); }
+
+  // --- Freies Bit-Tape (Erkunden) ---
   const freeTapeEl = document.getElementById('free-tape');
-  const freeDecimalEl = document.getElementById('free-tape-decimal');
-
-  for (let i = 0; i < 16; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'bit-cell';
-    cell.dataset.index = i;
-    cell.textContent = '0';
-    freeTapeEl.appendChild(cell);
+  function updateFree() {
+    const t = state.werkstatt.tape;
+    document.getElementById('free-tape-decimal').textContent = byteValue(t, 0);
+    document.getElementById('free-tape-calc').textContent = byteCalc(t, 0);
+    document.getElementById('free-tape-decimal2').textContent = byteValue(t, 8);
+    document.getElementById('free-tape-calc2').textContent = byteCalc(t, 8);
   }
+  buildTape(freeTapeEl, state.werkstatt.tape, updateFree, true);
+  updateFree();
 
-  freeTapeEl.addEventListener('click', (e) => {
-    const cell = e.target.closest('.bit-cell');
-    if (!cell) return;
-    const idx = parseInt(cell.dataset.index);
-    state.werkstatt.tape[idx] ^= 1;
-    cell.textContent = state.werkstatt.tape[idx];
-    cell.classList.toggle('active', state.werkstatt.tape[idx] === 1);
-    updateDecimal();
-    checkWerkstattGate();
-  });
+  // --- Mini-Aufgabe Bytes ---
+  (function initByteQuiz() {
+    const nEl = document.getElementById('bq-n');
+    const inp = document.getElementById('bq-input');
+    const btn = document.getElementById('bq-check');
+    const st  = document.getElementById('bq-status');
+    if (!nEl || !inp || !btn) return;
+    let n = 5;
+    btn.addEventListener('click', () => {
+      const v = inp.value.replace(/\s/g, '');
+      if (!/^\d+$/.test(v)) { st.textContent = 'Bitte eine Zahl eingeben.'; return; }
+      if (parseInt(v, 10) === n * 8) {
+        st.textContent = '✅ Richtig: ' + n + ' · 8 = ' + (n * 8) + ' Bit.';
+        n = 3 + Math.floor(Math.random() * 10);
+        nEl.textContent = n; inp.value = '';
+      } else {
+        st.textContent = '✗ 1 Byte = 8 Bit. Rechne ' + n + ' · 8.';
+      }
+    });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+  })();
 
-  function updateDecimal() {
-    const binary = state.werkstatt.tape.join('');
-    const decimal = parseInt(binary, 2);
-    freeDecimalEl.textContent = decimal.toLocaleString('de-DE');
-  }
+  // --- Fortschritt der Einheit 1 (Uebung 1, Uebung 2, Mission) ---
+  // Wer die Einheit schon abgeschlossen hat (altes Gate oder Logik freigeschaltet), bleibt fertig.
+  const werkstattAlreadyDone = !!gateProgress.werkstatt || state.unlocked.has('logik');
+  const wk = {
+    ex1: werkstattAlreadyDone || !!gateProgress.werkstatt_ex1,
+    ex2: werkstattAlreadyDone || !!gateProgress.werkstatt_ex2,
+    hi: werkstattAlreadyDone
+  };
+  function saveExercise(key) { gateProgress[key] = true; saveProgress(); }
 
-  // Build target display
-  const targetDisplay = document.getElementById('target-tape-display');
-  state.werkstatt.target.forEach(bit => {
-    const cell = document.createElement('div');
-    cell.className = 'target-cell';
-    cell.textContent = bit;
-    targetDisplay.appendChild(cell);
-  });
+  // --- Uebung 1: Zahl -> Bits ---
+  (function initEx1() {
+    const tapeBits = new Array(8).fill(0);
+    const targetEl = document.getElementById('ex1-target');
+    const sumEl = document.getElementById('ex1-sum');
+    const calcEl = document.getElementById('ex1-calc');
+    const statusEl = document.getElementById('ex1-status');
+    const checkBtn = document.getElementById('ex1-check');
+    const nextBtn = document.getElementById('ex1-next');
+    if (!targetEl || !checkBtn) return;
+    let target = 13, errors = 0, solved = false;
 
-  // Gate check
-  function checkWerkstattGate() {
-    const statusEl = document.getElementById('werkstatt-gate-status');
-    const match = state.werkstatt.tape.every((b, i) => b === state.werkstatt.target[i]);
+    function update() {
+      sumEl.textContent = byteValue(tapeBits, 0);
+      calcEl.textContent = byteCalc(tapeBits, 0);
+    }
+    const tape = buildTape(document.getElementById('ex1-tape'), tapeBits, () => {
+      if (solved) { solved = false; statusEl.className = 'gate-status checking'; statusEl.textContent = ''; }
+      update();
+    }, true);
+    update();
 
-    if (match) {
+    function newTask(n) {
+      target = n; errors = 0; solved = false;
+      tapeBits.fill(0); tape.render(); update();
+      targetEl.textContent = n;
+      statusEl.className = 'gate-status checking';
+      statusEl.textContent = '';
+      nextBtn.style.display = 'none';
+    }
+    if (wk.ex1) {
       statusEl.className = 'gate-status correct';
-      statusEl.innerHTML = '✅ <strong>PERFEKT!</strong> Du hast gerade „Hi" in ASCII-Code geschrieben — genau so speichert dein Computer Text. Jede Zahl steht für einen Buchstaben!<br><br><em>LOGIK-PUZZLE wird freigeschaltet…</em>';
+      statusEl.textContent = '✅ Geschafft! Wenn du magst, übe mit weiteren Zahlen.';
+      nextBtn.style.display = '';
+    }
+
+    checkBtn.addEventListener('click', () => {
+      const v = byteValue(tapeBits, 0);
+      if (v === target) {
+        solved = true;
+        statusEl.className = 'gate-status correct';
+        statusEl.innerHTML = '✅ <strong>Richtig!</strong> ' + decompose(target) + ' — genau diese Schalter sind an.';
+        if (!wk.ex1) { wk.ex1 = true; saveExercise('werkstatt_ex1'); }
+        nextBtn.style.display = '';
+        checkWerkstattGate();
+      } else {
+        errors++;
+        statusEl.className = 'gate-status wrong';
+        let msg = '✗ Dein Muster ergibt ' + v + ', gesucht ist ' + target + ' (' + (v > target ? 'zu viel' : 'zu wenig') + ').';
+        if (errors === 1) msg += ' Tipp: Beginne links. Welcher größte Wert passt noch in ' + target + '?';
+        else msg += ' Rechenweg: ' + decompose(target) + ' — diese Schalter müssen an sein, alle anderen aus.';
+        statusEl.textContent = msg;
+      }
+    });
+    nextBtn.addEventListener('click', () => newTask(1 + Math.floor(Math.random() * 255)));
+  })();
+
+  // --- Uebung 2: Bits -> Zahl ---
+  (function initEx2() {
+    const bits = new Array(8).fill(0);
+    const inp = document.getElementById('ex2-input');
+    const btn = document.getElementById('ex2-check');
+    const statusEl = document.getElementById('ex2-status');
+    const countEl = document.getElementById('ex2-count');
+    if (!inp || !btn) return;
+    const tape = buildTape(document.getElementById('ex2-tape'), bits, null, false);
+    let value = 0, correct = 0, errors = 0, needNew = false;
+
+    function newTask() {
+      let n;
+      do { n = 1 + Math.floor(Math.random() * 255); } while (n === value);
+      value = n; errors = 0; needNew = false;
+      numToBits(n).forEach((b, i) => { bits[i] = b; });
+      tape.render();
+      inp.value = '';
+      inp.focus && inp.focus({ preventScroll: true });
+    }
+    function showCount() {
+      countEl.textContent = wk.ex2 && correct < 2 ? '(geschafft — du kannst weiter üben)' : '(Aufgabe ' + Math.min(correct + 1, 2) + ' von 2)';
+    }
+    newTask();
+    if (wk.ex2) {
+      statusEl.className = 'gate-status correct';
+      statusEl.textContent = '✅ Geschafft! Du kannst gern weiter üben.';
+      countEl.textContent = '(geschafft — du kannst weiter üben)';
+    }
+
+    btn.addEventListener('click', () => {
+      if (needNew) { newTask(); statusEl.className = 'gate-status checking'; statusEl.textContent = ''; btn.textContent = 'PRÜFEN'; showCount(); return; }
+      const raw = inp.value.replace(/[\s.]/g, '');
+      if (!/^\d+$/.test(raw)) {
+        statusEl.className = 'gate-status wrong';
+        statusEl.textContent = '✗ Bitte gib die Zahl mit Ziffern ein, z. B. 42.';
+        return;
+      }
+      const given = parseInt(raw, 10);
+      if (given === value) {
+        correct++;
+        const calc = byteCalc(bits, 0);
+        statusEl.className = 'gate-status correct';
+        if (correct >= 2 || wk.ex2) {
+          if (!wk.ex2) { wk.ex2 = true; saveExercise('werkstatt_ex2'); }
+          statusEl.innerHTML = '✅ <strong>Richtig!</strong> ' + calc + '. Übung 2 geschafft!';
+          countEl.textContent = '(geschafft — du kannst weiter üben)';
+        } else {
+          statusEl.innerHTML = '✅ <strong>Richtig!</strong> ' + calc + '. Noch eine Aufgabe.';
+        }
+        needNew = true; btn.textContent = 'NÄCHSTE AUFGABE';
+        checkWerkstattGate();
+      } else {
+        errors++;
+        statusEl.className = 'gate-status wrong';
+        const parts = [];
+        for (let k = 0; k < 8; k++) if (bits[k]) parts.push(WEIGHTS[k]);
+        statusEl.textContent = '✗ Nicht ganz. Tipp: Addiere nur die Werte der leuchtenden Schalter: ' + parts.join(' + ') + ' = ?'
+          + (/^[01]+$/.test(raw) && raw.length >= 6 ? ' (Gesucht ist die Dezimalzahl, nicht das Bitmuster.)' : '');
+      }
+    });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+  })();
+
+  // --- Mission: "Hi" aus Dezimalzahlen schreiben ---
+  const HI_BITS = [].concat(numToBits(72), numToBits(105)); // ASCII "Hi"
+  const gateTapeBits = new Array(16).fill(0);
+  const gateTape = buildTape(document.getElementById('gate-tape'), gateTapeBits, () => {
+    updateGateCalc();
+    checkWerkstattGate();
+  }, true);
+  function updateGateCalc() {
+    const c1 = byteCalc(gateTapeBits, 0), c2 = byteCalc(gateTapeBits, 8);
+    const el = document.getElementById('gate-calc');
+    el.textContent = 'Links: ' + byteValue(gateTapeBits, 0) + (c1 ? '  (' + c1 + ')' : '') + '   |   Rechts: ' + byteValue(gateTapeBits, 8) + (c2 ? '  (' + c2 + ')' : '');
+  }
+  if (werkstattAlreadyDone) HI_BITS.forEach((b, i) => { gateTapeBits[i] = b; });
+  gateTape.render();
+  updateGateCalc();
+
+  // Gate check: Uebung 1 + Uebung 2 + Mission
+  function checkWerkstattGate(quiet) {
+    const statusEl = document.getElementById('werkstatt-gate-status');
+    if (!statusEl) return;
+    wk.hi = arraysEqual(gateTapeBits, HI_BITS);
+    if (quiet && werkstattAlreadyDone) {
+      statusEl.className = 'gate-status correct';
+      statusEl.textContent = '✅ Einheit 1 ist schon geschafft — LOGIK-PUZZLE ist freigeschaltet. Du kannst hier weiter üben.';
+    } else if (wk.ex1 && wk.ex2 && wk.hi) {
+      statusEl.className = 'gate-status correct';
+      statusEl.innerHTML = '✅ <strong>PERFEKT!</strong> Du hast gerade „Hi" in ASCII-Code geschrieben (72 und 105) — genau so speichert dein Computer Text. Jede Zahl steht für einen Buchstaben!<br><br><em>LOGIK-PUZZLE wird freigeschaltet…</em>';
       saveGateCompletion('werkstatt');
       unlockSection('logik');
     } else {
-      const correct = state.werkstatt.tape.filter((b, i) => b === state.werkstatt.target[i]).length;
+      const open = [];
+      if (!wk.ex1) open.push('Übung 1');
+      if (!wk.ex2) open.push('Übung 2');
+      if (!wk.hi) {
+        const correct = gateTapeBits.filter((b, i) => b === HI_BITS[i]).length;
+        open.push('Mission (' + correct + ' von 16 Bits stimmen)');
+      }
       statusEl.className = 'gate-status checking';
-      statusEl.textContent = `⏳ ${correct} von 16 Bits stimmen. Weiter anpassen!`;
+      statusEl.textContent = '⏳ Noch offen: ' + open.join(', ') + '.';
     }
   }
+  checkWerkstattGate(true);
 
   // ─── SEKTION 2: LOGIK-PUZZLE (Turing Simulator) ──────────
 
@@ -4102,7 +4355,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
 
     if (!wordPoolEl) return;
 
-    const WORD_POOL = ['Hallo','Welt','Computer','Bit','Byte','Code','Turing','Maschine','Daten','Schl\u00fcssel','Enigma','Geheim'];
+    const WORD_POOL = ['Hallo','Welt','Computer','Bit','Byte','Code','Turing','Maschine','Daten','Passwort','Enigma','Geheim'];
     let currentWords = [];
 
     // Build word pool tiles
@@ -4211,8 +4464,8 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
     let pwParts = [];
 
     const PW_POOLS = {
-      words:   ['Hund','Baum','Berg','Nacht','Sonne','Blitz','Auto','Stern','Meer','Wald','Pixel','Byte'],
-      numbers: ['0','1','2','3','4','5','6','7','8','9','42','99','2025','13'],
+      words:   ['Hund','Baum','Berg','Nacht','Sonne','Blitz','Auto','Stern','Meer','Wald','Pixel','Byte','Lisa'],
+      numbers: ['0','1','2','3','4','5','6','7','8','9','12','13','42','99','2025'],
       special: ['!','@','#','$','%','&','*','?','_','-','+','='],
       upper:   ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
     };
@@ -4224,17 +4477,70 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       upper:   document.getElementById('pw-pool-upper')
     };
 
-    // Entropy calculation
+    // Entropie-Schaetzung (Modell fuer den Unterricht, kein exakter Wert):
+    // - Bekannte Woerter/Namen/Zahlen stehen auf jeder Angreifer-Liste (Dictionary Attack):
+    //   ein Wort zaehlt nur ~10 Bit (Liste mit ~1000 haeufigen Woertern), eine bekannte Zahl ~6 Bit.
+    // - Wiederholt sich dasselbe Wort/Zeichen, kostet das nur ~1 Bit extra (Angreifer testen Wiederholungen).
+    // - Alle uebrigen Zeichen zaehlen als Zufall: Bits = log2(Zeichenvorrat) pro neuem Zeichen.
+    const PW_KNOWN_WORDS = ['hund','baum','berg','nacht','sonne','blitz','auto','stern','meer','wald','pixel','byte',
+                            'lisa','anna','max','leon','hallo','passwort','qwertz'];
+    const PW_KNOWN_NUMS  = ['2025','12','13','42','99','123','1234','12345','123456'];
+    const PW_WORD_BITS = 10, PW_NUM_BITS = 6;
+
     function calcEntropy(parts) {
       const pw = parts.join('');
       if (pw.length === 0) return 0;
-      let charsetSize = 0;
-      if (/[a-z]/.test(pw)) charsetSize += 26;
-      if (/[A-Z]/.test(pw)) charsetSize += 26;
-      if (/[0-9]/.test(pw)) charsetSize += 10;
-      if (/[^a-zA-Z0-9]/.test(pw)) charsetSize += 32;
-      if (charsetSize === 0) charsetSize = 26;
-      return Math.floor(pw.length * Math.log2(charsetSize));
+      const low = pw.toLowerCase();
+      const known = PW_KNOWN_WORDS.map(w => [w, PW_WORD_BITS])
+        .concat(PW_KNOWN_NUMS.map(w => [w, PW_NUM_BITS]))
+        .sort((x, y) => y[0].length - x[0].length);
+      let bits = 0, i = 0;
+      const seen = new Set();
+      let rest = '';
+      while (i < low.length) {
+        const hit = known.find(k => low.startsWith(k[0], i));
+        if (hit) {
+          bits += seen.has(hit[0]) ? 1 : hit[1];
+          seen.add(hit[0]);
+          i += hit[0].length;
+        } else {
+          rest += pw[i];
+          i++;
+        }
+      }
+      if (rest.length > 0) {
+        let charsetSize = 0;
+        if (/[a-z]/.test(rest)) charsetSize += 26;
+        if (/[A-Z]/.test(rest)) charsetSize += 26;
+        if (/[0-9]/.test(rest)) charsetSize += 10;
+        if (/[^a-zA-Z0-9]/.test(rest)) charsetSize += 32;
+        const perChar = Math.log2(charsetSize);
+        const seenCh = new Set();
+        for (const ch of rest) {
+          bits += seenCh.has(ch) ? 1 : perChar;
+          seenCh.add(ch);
+        }
+      }
+      return Math.floor(bits);
+    }
+
+    // Zeit in lesbarer Einheit (Jahr = 31,56 Mio. Sekunden)
+    function formatCrackTime(sec) {
+      const fmt = (n) => Math.round(n).toLocaleString('de-DE');
+      const one = (n, sing, plur) => (Math.round(n) === 1 ? '1 ' + sing : fmt(n) + ' ' + plur);
+      const YEAR = 3.156e7;
+      if (sec < 1) return 'unter einer Sekunde';
+      if (sec < 60) return one(sec, 'Sekunde', 'Sekunden');
+      if (sec < 3600) return one(sec / 60, 'Minute', 'Minuten');
+      if (sec < 86400) return one(sec / 3600, 'Stunde', 'Stunden');
+      if (sec < 86400 * 30) return one(sec / 86400, 'Tag', 'Tage');
+      if (sec < YEAR) return one(sec / (YEAR / 12), 'Monat', 'Monate');
+      if (sec < YEAR * 100) return one(sec / YEAR, 'Jahr', 'Jahre');
+      if (sec < YEAR * 1000) return fmt(sec / (YEAR * 100)) + ' Jahrhunderte';
+      if (sec < YEAR * 1e6) return fmt(sec / (YEAR * 1000)) + ' Jahrtausende';
+      if (sec < YEAR * 1e9) return fmt(sec / (YEAR * 1e6)) + ' Millionen Jahre';
+      if (sec < YEAR * 1.38e10) return fmt(sec / (YEAR * 1e9)) + ' Milliarden Jahre';
+      return 'mehr als das Universum alt ist (13,8 Milliarden Jahre)';
     }
 
     function updatePwUI() {
@@ -4246,9 +4552,10 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
 
       let strength, color;
       if (bits === 0)        { strength = 'Kein Passwort'; color = '#888'; }
-      else if (bits < 28)   { strength = 'SCHWACH (⚠️)';     color = '#e74c3c'; }
-      else if (bits < 50)   { strength = 'MITTEL (🟡)';      color = '#e67e22'; }
-      else if (bits < 65)   { strength = 'STARK (✅)';        color = '#27ae60'; }
+      // Schwellen passen zur angezeigten Knackzeit bei 10^12 Versuchen/s: 40 Bit = ~1 s, 50 Bit = ~20 Min., 60 Bit = ~13 Tage, 75 Bit = ~1000 Jahre
+      else if (bits < 45)   { strength = 'SCHWACH (⚠️)';     color = '#e74c3c'; }
+      else if (bits < 60)   { strength = 'MITTEL (🟡)';      color = '#e67e22'; }
+      else if (bits < 75)   { strength = 'STARK (✅)';        color = '#27ae60'; }
       else                   { strength = 'SEHR STARK (🔒)';   color = '#00d4ff'; }
 
       pwStrengthFill.style.width  = pct + '%';
@@ -4257,17 +4564,10 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
       pwStrengthLbl.style.color = color;
 
       if (bits > 0) {
-        const crackSeconds = Math.pow(2, bits) / 1e12; // assume 10^12 guesses/sec
-        let crackStr;
-        if (crackSeconds < 1) crackStr = 'unter einer Sekunde';
-        else if (crackSeconds < 60) crackStr = Math.round(crackSeconds) + ' Sekunden';
-        else if (crackSeconds < 3600) crackStr = Math.round(crackSeconds/60) + ' Minuten';
-        else if (crackSeconds < 86400) crackStr = Math.round(crackSeconds/3600) + ' Stunden';
-        else if (crackSeconds < 3.15e7) crackStr = Math.round(crackSeconds/86400) + ' Tage';
-        else if (crackSeconds < 3.15e9) crackStr = Math.round(crackSeconds/3.15e7) + ' Jahre';
-        else crackStr = 'Milliarden Jahre';
+        const crackSeconds = Math.pow(2, bits) / 1e12; // Annahme: 10^12 Versuche pro Sekunde
+        const crackStr = formatCrackTime(crackSeconds);
 
-        pwEntropyInfo.innerHTML = `<strong>${bits} Bits Entropie</strong> \u2014 Ein moderner Computer br\u00e4uchte bei Hochgeschwindigkeit <strong>${crackStr}</strong>, um dieses Passwort zu knacken. Warum? 2<sup>${bits}</sup> m\u00f6gliche Kombinationen.`;
+        pwEntropyInfo.innerHTML = `<strong>etwa ${bits} Bits Entropie</strong> — das sind rund 2<sup>${bits}</sup> Versuche. Ein sehr schneller Angreifer (Annahme: 1 Billion Versuche pro Sekunde) bräuchte höchstens <strong>${crackStr}</strong>.<br><span style="font-size:0.78rem; color:var(--text-dim);">So rechnet der Baukasten: Bekannte Wörter, Namen und Zahlen zählen nur ca. 10 bzw. 6 Bit, weil Angreifer solche Listen zuerst ausprobieren (Dictionary Attack). Wiederholungen zählen kaum extra. Nur wirklich zufällige Zeichen zählen voll. Das ist eine Schätzung, kein exakter Wert.</span>`;
         pwDisplayBox.style.borderColor = color;
       } else {
         pwEntropyInfo.innerHTML = '';
@@ -4308,7 +4608,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
           { text: 'Ablehnen \u2014 ein Taschenrechner braucht keinen Standort', correct: true },
           { text: 'Erlauben \u2014 schadet ja nichts', correct: false }
         ],
-        feedback: 'Datensparsamkeit ist ein DSGVO-Grundprinzip: Apps d\u00fcrfen nur Daten sammeln, die sie wirklich brauchen. Ein Taschenrechner braucht keinen Standortzugriff \u2014 wer sch\u00e4n ihn trotzdem fragt, will deine Daten f\u00fcr andere Zwecke.'
+        feedback: 'Datensparsamkeit ist ein DSGVO-Grundprinzip: Apps d\u00fcrfen nur Daten sammeln, die sie wirklich brauchen. Ein Taschenrechner braucht keinen Standortzugriff \u2014 wer ihn trotzdem fragt, will deine Daten f\u00fcr andere Zwecke.'
       },
       {
         question: 'Dein Instagram-Passwort ist: "Lisa12". Du nutzt es auch f\u00fcr deine E-Mail. Ein Angriff legt Instagram lahm und die Passwort-Hashes werden geklaut. Was passiert?',
@@ -4316,7 +4616,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
           { text: 'Nichts \u2014 der Hash ist doch unleserlich', correct: false },
           { text: 'Deine E-Mail ist in Gefahr \u2014 kurze Passw\u00f6rter werden per Brute-Force geknackt', correct: true }
         ],
-        feedback: '"Lisa12" hat nur ~35 Bits Entropie. Angreifer probieren Millionen einfacher Passw\u00f6rter aus (Dictionary Attack). Wenn der Hash stimmt, kennen sie dein Passwort \u2014 und k\u00f6nnen sich \u00fcberall einloggen, wo du es nutzt. Niemals Passw\u00f6rter wiederverwenden!'
+        feedback: '"Lisa12" ist ein Name plus eine einfache Zahl \u2014 im Passwort-Baukasten sind das nur ~16 Bit. Angreifer probieren Millionen einfacher Passw\u00f6rter aus (Dictionary Attack). Wenn der Hash stimmt, kennen sie dein Passwort \u2014 und k\u00f6nnen sich \u00fcberall einloggen, wo du es nutzt. Niemals Passw\u00f6rter wiederverwenden!'
       },
       {
         question: 'Du findest heraus, dass eine App Daten \u00fcber dich gesammelt hat, die du nie freigegeben hast. Was kannst du laut DSGVO tun?',
@@ -4336,8 +4636,29 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
     let answered = 0;
     let allCorrect = true;
 
+    // Antworten mischen (Fisher-Yates), damit die richtige Option nicht immer an derselben Stelle steht
+    function shuffled(arr) {
+      const a = arr.slice();
+      for (let k = a.length - 1; k > 0; k--) {
+        const j = Math.floor(Math.random() * (k + 1));
+        [a[k], a[j]] = [a[j], a[k]];
+      }
+      return a;
+    }
+
+    function resetDaten() {
+      answered = 0;
+      allCorrect = true;
+      datenScenariosEl.innerHTML = '';
+      datenCompleteEl.style.display = 'none';
+      datenGateStatus.className = 'gate-status checking';
+      datenGateStatus.textContent = '\u23f3 Beantworte alle drei Szenarien.';
+      buildDatenScenarios();
+    }
+
     function buildDatenScenarios() {
       datenScenarios.forEach((sc, i) => {
+        const opts = shuffled(sc.options);
         const card = document.createElement('div');
         card.className = 'daten-scenario-card';
         card.dataset.index = i;
@@ -4347,7 +4668,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
         q.innerHTML = '<strong>' + (i+1) + '.</strong> ' + sc.question;
         card.appendChild(q);
 
-        sc.options.forEach((opt, oi) => {
+        opts.forEach((opt, oi) => {
           const btn = document.createElement('button');
           btn.className = 'scenario-btn';
           btn.textContent = opt.text;
@@ -4363,7 +4684,7 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
             card.querySelectorAll('.scenario-btn').forEach((b, bi) => {
               b.disabled = true;
               if (bi === oi) b.classList.add(isCorrect ? 'chosen-correct' : 'chosen-wrong');
-              else if (sc.options[bi].correct) b.classList.add('chosen-correct');
+              else if (opts[bi].correct) b.classList.add('chosen-correct');
             });
 
             // Show feedback
@@ -4375,17 +4696,22 @@ details.challenge-block[open] > summary::before { content: '▾  '; }
             if (answered === datenScenarios.length) {
               if (allCorrect) {
                 datenGateStatus.className = 'gate-status correct';
-                datenGateStatus.innerHTML = '\u2705 <strong>PERFEKT!</strong> Du weist, wie du deine Daten sch\u00fctzt. Herzlichen Gl\u00fcckwunsch \u2014 du hast alle 8 Einheiten abgeschlossen!';
+                datenGateStatus.innerHTML = '\u2705 <strong>PERFEKT!</strong> Du wei\u00dft, wie du deine Daten sch\u00fctzt. Herzlichen Gl\u00fcckwunsch \u2014 du hast alle 8 Einheiten abgeschlossen!';
                 saveGateCompletion('daten');
+                setTimeout(() => {
+                  datenCompleteEl.style.display = 'block';
+                  datenCompleteEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 1000);
               } else {
                 datenGateStatus.className = 'gate-status wrong';
-                datenGateStatus.textContent = '\u2717 Nicht alle richtig. Lies die Erkl\u00e4rungen und verbessere deine Antworten beim n\u00e4chsten Durchgang.';
+                datenGateStatus.textContent = '\u2717 Nicht alle richtig. Lies die Erkl\u00e4rungen und versuche es noch einmal. ';
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'btn btn-secondary';
+                retryBtn.id = 'daten-retry';
+                retryBtn.textContent = '\u21bb NOCHMAL VERSUCHEN';
+                retryBtn.addEventListener('click', resetDaten);
+                datenGateStatus.appendChild(retryBtn);
               }
-
-              setTimeout(() => {
-                datenCompleteEl.style.display = 'block';
-                datenCompleteEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }, 1000);
             } else {
               datenGateStatus.textContent = '\u23f3 ' + answered + '/' + datenScenarios.length + ' beantwortet\u2026';
             }
